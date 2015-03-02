@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace VirtualMemory
 {
-    class Program
+    class PhysicalMemory
     {
-        static void Main(string[] args)
-        {
-        }
     }
 }
