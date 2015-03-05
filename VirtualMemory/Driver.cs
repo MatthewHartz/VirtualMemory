@@ -17,7 +17,7 @@ namespace ProcessAndResourceManager
             var stream2 = new StreamReader("C:\\Users\\Matthew\\Desktop\\input2.txt");
             var pairs = new List<SegmentFramePair>();
             var triplets = new List<PageSegmentFrameTriplet>();
-            var isTlbEnabled = true;
+            var isTlbEnabled = false;
 
 
             String line;
@@ -52,7 +52,7 @@ namespace ProcessAndResourceManager
 
             for (var i = 0; i < tokens.Length; i += 2)
             {
-                int value = 0;
+                string value = "";
 
                 switch (tokens[i])
                 {
@@ -69,10 +69,10 @@ namespace ProcessAndResourceManager
 
                 switch (value)
                 {
-                    case 0:
+                    case "0":
                         sb.Append("err ");
                         break;
-                    case -1:
+                    case "-1":
                         sb.Append("pf ");
                         break;
                     default:

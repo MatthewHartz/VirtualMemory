@@ -12,7 +12,7 @@ namespace VirtualMemory
         private const int FrameSize = 512;
         private int[] physicalMemory = new int[524288];
         private Bitmap bitmap = new Bitmap();
-        private TLB tlb;
+        private List<TLBentry> tlb;
 
 
         public VirtualMemoryHandler(List<SegmentFramePair> pairs, List<PageSegmentFrameTriplet> triplets, bool tlbEnabled)
@@ -20,7 +20,13 @@ namespace VirtualMemory
             // Determines if TLB is enabled for this run
             if (tlbEnabled)
             {
-                tlb = new TLB();
+                tlb = new List<TLBentry>
+                {
+                    new TLBentry(0, -1, -1),
+                    new TLBentry(1, -1, -1),
+                    new TLBentry(2, -1, -1),
+                    new TLBentry(3, -1, -1)
+                };
             }
 
             // Initialze the segment table
@@ -43,19 +49,27 @@ namespace VirtualMemory
         /// </summary>
         /// <param name="address">The address.</param>
         /// <returns>Returns the physical address</returns>
-        public int Read(int address)
+        public string Read(int address)
         {
             var virtualAddress = new VirtualAddress(address);
 
+            if (tlb != null)
+            {
+                var pa = DoesEntryExist(virtualAddress);
+                if (pa != -1) return "h " + pa;
+            }
+
             var pageTable = GetPageTable(virtualAddress.segment);
 
-            if (pageTable == -1 || pageTable == 0) return pageTable;
+            if (pageTable == -1 || pageTable == 0) return pageTable.ToString();
 
             var page = GetPage(pageTable);
 
-            if (page == -1 || page == 0) return page;
+            if (page == -1 || page == 0) return page.ToString();
 
-            return page + virtualAddress.word;
+            if (tlb != null) InsertEntry(virtualAddress);
+
+            return tlb != null ? "m " + (page + virtualAddress.word) : (page + virtualAddress.word).ToString();
         }
 
         /// <summary>
@@ -65,13 +79,19 @@ namespace VirtualMemory
         /// </summary>
         /// <param name="address">The address.</param>
         /// <returns>Returns the physical address</returns>
-        public int Write(int address)
+        public string Write(int address)
         {
             var virtualAddress = new VirtualAddress(address);
 
+            if (tlb != null)
+            {
+                var pa = DoesEntryExist(virtualAddress);
+                if (pa != -1) return "h " + pa;
+            }
+
             var pageTable = GetPageTable(virtualAddress.segment);
 
-            if (pageTable == -1) return -1;
+            if (pageTable == -1) return pageTable.ToString();
             
             // Create page table
             if (pageTable == 0)
@@ -84,7 +104,7 @@ namespace VirtualMemory
 
             var page = GetPage(pageTable + virtualAddress.page);
 
-            if (page == -1) return -1;
+            if (page == -1) return page.ToString();
 
             // Create page
             if (page == 0)
@@ -95,7 +115,9 @@ namespace VirtualMemory
                 SetPageToPageTable(pageTable + virtualAddress.word, page);
             }
 
-            return page + virtualAddress.word;
+            if (tlb != null) InsertEntry(virtualAddress);
+
+            return tlb != null ? "m " + (page + virtualAddress.word) : (page + virtualAddress.word).ToString();
         }
 
         /// <summary>
@@ -171,6 +193,51 @@ namespace VirtualMemory
             {
                 physicalMemory[(frame * FrameSize) + i] = 0;
             }
+        }
+
+        /// <summary>
+        /// Inserts the tlb entry if it does not exist. If the entry exists, return
+        /// the frame number of the entry. Otherwise, return -1;
+        /// </summary>
+        /// <param name="page">The page.</param>
+        /// <param name="frame">The frame.</param>
+        /// <returns></returns>
+        private void InsertEntry(VirtualAddress va)
+        {
+            // Entry was not found, so replace the least recently used entry
+            foreach (var entry in tlb)
+            {
+                if (entry.priority == 0)
+                {
+                    entry.priority = 3;
+                    entry.sp = va.sp;
+                    entry.f = physicalMemory[physicalMemory[va.segment] + va.page];
+                }
+                else
+                {
+                    entry.priority -= 1;
+                }
+
+            }
+        }
+
+        private int DoesEntryExist(VirtualAddress va)
+        {
+            // search TLB for entry, then update it's priority and return PA
+            for (var i = 0; i < tlb.Count; i++)
+            {
+                if (tlb[i].sp == va.sp)
+                {
+                    tlb
+                        .Select(x => x)
+                        .Where(y => y.priority > tlb[i].priority)
+                        .Select(z => { z.priority -= 1; return z; });
+                    tlb[i].priority = 3;
+                    return tlb[i].f + va.word;
+                }
+            }
+
+            return -1;
         }
     }
 }

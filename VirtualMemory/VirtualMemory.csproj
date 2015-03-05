@@ -46,7 +46,7 @@
     <Compile Include="PageSegmentFrameTriplet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SegmentFramePair.cs" />
-    <Compile Include="TLB.cs" />
+    <Compile Include="TLBentry.cs" />
     <Compile Include="VirtualAddress.cs" />
     <Compile Include="VirtualMemoryHandler.cs" />
   </ItemGroup>

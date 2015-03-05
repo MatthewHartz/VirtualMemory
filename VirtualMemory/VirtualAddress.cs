@@ -11,6 +11,7 @@ namespace VirtualMemory
         public int segment { get; private set; }
         public int page { get; private set; }
         public int word { get; private set; }
+        public int sp { get; private set; } // this is just used for TLB stuff
 
         private int _sMask = 0x0FF80000;
         private int _pMask = 0x0007FE00;
@@ -21,6 +22,7 @@ namespace VirtualMemory
             segment = (address & _sMask) >> 19;
             page = (address & _pMask) >> 9;
             word = address & _wMask;
+            sp = ((address & _sMask) >> 10) | page;
         }
     }
 }
