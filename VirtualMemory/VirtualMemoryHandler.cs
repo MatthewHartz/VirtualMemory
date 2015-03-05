@@ -9,11 +9,20 @@ namespace VirtualMemory
 {
     class VirtualMemoryHandler
     {
+        private const int FrameSize = 512;
         private int[] physicalMemory = new int[524288];
         private Bitmap bitmap = new Bitmap();
+        private TLB tlb;
 
-        public VirtualMemoryHandler(List<SegmentFramePair> pairs, List<PageSegmentFrameTriplet> triplets)
+
+        public VirtualMemoryHandler(List<SegmentFramePair> pairs, List<PageSegmentFrameTriplet> triplets, bool tlbEnabled)
         {
+            // Determines if TLB is enabled for this run
+            if (tlbEnabled)
+            {
+                tlb = new TLB();
+            }
+
             // Initialze the segment table
             foreach (var pair in pairs)
             {
@@ -67,17 +76,23 @@ namespace VirtualMemory
             // Create page table
             if (pageTable == 0)
             {
-                
+                var frame = GetFreeFrame();
+                EmptyFrame(frame);
+                pageTable = frame * FrameSize;
+                SetSegmentToPageTable(virtualAddress.segment, pageTable);
             }
 
-            var page = GetPage(pageTable);
+            var page = GetPage(pageTable + virtualAddress.page);
 
             if (page == -1) return -1;
 
             // Create page
             if (page == 0)
             {
-                
+                var frame = GetFreeFrame();
+                EmptyFrame(frame);
+                page = frame * FrameSize;
+                SetPageToPageTable(pageTable + virtualAddress.word, page);
             }
 
             return page + virtualAddress.word;
@@ -107,7 +122,19 @@ namespace VirtualMemory
         {
             physicalMemory[segment] = pageTable;
 
-            bitmap.SetBit(segment);
+            bitmap.SetBit(pageTable/FrameSize);
+        }
+
+        /// <summary>
+        /// Sets the page table to the corresponding page.
+        /// </summary>
+        /// <param name="pageTable">The page table.</param>
+        /// <param name="page">The page.</param>
+        private void SetPageToPageTable(int pageTable, int page)
+        {
+            physicalMemory[pageTable] = page;
+
+            bitmap.SetBit(page / FrameSize);
         }
 
         /// <summary>
@@ -126,9 +153,24 @@ namespace VirtualMemory
         /// <returns></returns>
         private int GetFreeFrame()
         {
-
+            for (var i = 0; i < 1024; i++)
+            {
+                if (bitmap.GetBit(i) == 0) return i;
+            }
 
             return -1;
+        }
+
+        /// <summary>
+        /// Empties the frame for new allocation
+        /// </summary>
+        /// <param name="frame">The frame.</param>
+        private void EmptyFrame(int frame)
+        {
+            for (var i = 0; i < FrameSize; i++)
+            {
+                physicalMemory[(frame * FrameSize) + i] = 0;
+            }
         }
     }
 }

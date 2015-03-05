@@ -17,6 +17,8 @@ namespace ProcessAndResourceManager
             var stream2 = new StreamReader("C:\\Users\\Matthew\\Desktop\\input2.txt");
             var pairs = new List<SegmentFramePair>();
             var triplets = new List<PageSegmentFrameTriplet>();
+            var isTlbEnabled = true;
+
 
             String line;
 
@@ -42,7 +44,7 @@ namespace ProcessAndResourceManager
             stream1.Close();
 
             // Initialize the virtual memory
-            var handler = new VirtualMemoryHandler(pairs, triplets);
+            var handler = new VirtualMemoryHandler(pairs, triplets, isTlbEnabled);
 
             line = stream2.ReadLine();
 
@@ -50,7 +52,7 @@ namespace ProcessAndResourceManager
 
             for (var i = 0; i < tokens.Length; i += 2)
             {
-                int value;
+                int value = 0;
 
                 switch (tokens[i])
                 {
@@ -58,10 +60,23 @@ namespace ProcessAndResourceManager
                         value = handler.Read(Int32.Parse(tokens[i + 1]));
                         break;
                     case "1":
-                        handler.Write(Int32.Parse(tokens[i + 1]));
+                        value = handler.Write(Int32.Parse(tokens[i + 1]));
                         break;
                     default:
-                        sb.Append("err");
+                        sb.Append("err ");
+                        break;
+                }
+
+                switch (value)
+                {
+                    case 0:
+                        sb.Append("err ");
+                        break;
+                    case -1:
+                        sb.Append("pf ");
+                        break;
+                    default:
+                        sb.Append(value + " ");
                         break;
                 }
             }
