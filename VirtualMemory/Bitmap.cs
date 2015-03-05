@@ -14,10 +14,10 @@ namespace FileSystem
         private int[] _map = new int[32]; // 1024 bits
         private int _bitmask = 0x00000001;   
 
-        /*public Bitmap()
+        public Bitmap()
         {
-            _map = 0x000000000000007F; // First 7 blocks are reserved for bitmap and file descriptors blocks
-        }*/
+            SetBit(0); // This is for the Segment Table that resides in position 0
+        }
 
         /// <summary>
         /// Gets the bit indicated by index.
@@ -26,8 +26,11 @@ namespace FileSystem
         /// <returns></returns>
         public int GetBit(int index)
         {
+            var group = index / 32;
+            var section = index % 8;
             //return (int)(_map & (_bitmask << index));
-            return -1;
+
+            return _map[group] & (_bitmask << section);
         }
 
         /// <summary>
@@ -38,6 +41,10 @@ namespace FileSystem
         public void SetBit(int index)
         {
             //_map |= (_bitmask << index);
+            var group = index/32;
+            var section = index%8;
+
+            _map[group] |= (_bitmask << section);
         }
 
         /// <summary>
@@ -47,6 +54,10 @@ namespace FileSystem
         /// <param name="index">The index.</param>
         public void ClearBit(int index)
         {
+            var group = index / 32;
+            var section = index % 8;
+
+            _map[group] &= ~(_bitmask << section);
             //_map &= ~(_bitmask << index);
         }
     }
