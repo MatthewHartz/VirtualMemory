@@ -1,1 +1,6 @@
 C:\Users\Matthew\Documents\GitHub\VirtualMemory\VirtualMemory\bin\Debug\VirtualMemory.exe.config
+C:\Users\Matthew\Documents\GitHub\VirtualMemory\VirtualMemory\bin\Debug\VirtualMemory.exe
+C:\Users\Matthew\Documents\GitHub\VirtualMemory\VirtualMemory\bin\Debug\VirtualMemory.pdb
+C:\Users\Matthew\Documents\GitHub\VirtualMemory\VirtualMemory\obj\Debug\VirtualMemory.csprojResolveAssemblyReference.cache
+C:\Users\Matthew\Documents\GitHub\VirtualMemory\VirtualMemory\obj\Debug\VirtualMemory.exe
+C:\Users\Matthew\Documents\GitHub\VirtualMemory\VirtualMemory\obj\Debug\VirtualMemory.pdb

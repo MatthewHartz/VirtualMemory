@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VirtualMemory;
 
 namespace ProcessAndResourceManager
 {
@@ -11,27 +12,61 @@ namespace ProcessAndResourceManager
     {
         static void Main(string[] args)
         {
-            //var manager = ProcessAndResourceManager.Instance;
             var sb = new StringBuilder(); // Will contain file output
-            var stream = new StreamReader("C:\\Users\\Matthew\\Desktop\\input.txt");
+            var stream1 = new StreamReader("C:\\Users\\Matthew\\Desktop\\input1.txt");
+            var stream2 = new StreamReader("C:\\Users\\Matthew\\Desktop\\input2.txt");
+            var pairs = new List<SegmentFramePair>();
+            var triplets = new List<PageSegmentFrameTriplet>();
+
             String line;
 
-            while ((line = stream.ReadLine()) != null)
+            line = stream1.ReadLine();
+
+            var tokens = line.Split(' ');
+
+            // Gets the "segment frame" pairs out of input file 1
+            for (var i = 0; i < tokens.Length; i += 2)
             {
-                var tokens = line.Split(' ');
+                pairs.Add(new SegmentFramePair(Int32.Parse(tokens[i]), Int32.Parse(tokens[i + 1])));
+            }
 
-                try
-                {
-                    
+            // Gets the "page segement frame" triplets out of input file 1
+            line = stream1.ReadLine();
 
-                }
-                catch (Exception e)
+            tokens = line.Split(' ');
+            for (var i = 0; i < tokens.Length; i += 3)
+            {
+                triplets.Add(new PageSegmentFrameTriplet(Int32.Parse(tokens[i]), Int32.Parse(tokens[i + 1]), Int32.Parse(tokens[i + 2])));
+            }
+
+            stream1.Close();
+
+            // Initialize the virtual memory
+            var handler = new VirtualMemoryHandler(pairs, triplets);
+
+            line = stream2.ReadLine();
+
+            tokens = line.Split(' ');
+
+            for (var i = 0; i < tokens.Length; i += 2)
+            {
+                int value;
+
+                switch (tokens[i])
                 {
-                    sb.Append(String.Format(" error({0})", e.Message));
+                    case "0":
+                        value = handler.Read(Int32.Parse(tokens[i + 1]));
+                        break;
+                    case "1":
+                        handler.Write(Int32.Parse(tokens[i + 1]));
+                        break;
+                    default:
+                        sb.Append("err");
+                        break;
                 }
             }
 
-            stream.Close();
+            stream2.Close();
             File.WriteAllText("C:\\Users\\Matthew\\Desktop\\87401675.txt", sb.ToString());
         }
     }

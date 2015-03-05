@@ -41,8 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="Bitmap.cs" />
+    <Compile Include="Driver.cs" />
+    <Compile Include="PageSegmentFrameTriplet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SegmentFramePair.cs" />
+    <Compile Include="TLB.cs" />
+    <Compile Include="VirtualAddress.cs" />
+    <Compile Include="VirtualMemoryHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

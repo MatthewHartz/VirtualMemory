@@ -11,17 +11,12 @@ namespace FileSystem
     /// </summary>
     class Bitmap
     {
-        private ulong _map; // ulong in C# is 64 bits
-        private ulong _bitmask = 0x0000000000000001;
+        private int[] _map = new int[32]; // 1024 bits
+        private int _bitmask = 0x00000001;   
 
-        public Bitmap()
+        /*public Bitmap()
         {
             _map = 0x000000000000007F; // First 7 blocks are reserved for bitmap and file descriptors blocks
-        }
-
-        /*public Bitmap(Block bitStream)
-        {
-            _map = BitConverter.ToUInt64((byte[])(Array)bitStream.data, 0);
         }*/
 
         /// <summary>
@@ -31,7 +26,8 @@ namespace FileSystem
         /// <returns></returns>
         public int GetBit(int index)
         {
-            return (int)(_map & (_bitmask << index));
+            //return (int)(_map & (_bitmask << index));
+            return -1;
         }
 
         /// <summary>
@@ -41,7 +37,7 @@ namespace FileSystem
         /// <param name="index">The index.</param>
         public void SetBit(int index)
         {
-            _map |= (_bitmask << index);
+            //_map |= (_bitmask << index);
         }
 
         /// <summary>
@@ -51,7 +47,7 @@ namespace FileSystem
         /// <param name="index">The index.</param>
         public void ClearBit(int index)
         {
-            _map &= ~(_bitmask << index);
+            //_map &= ~(_bitmask << index);
         }
     }
 }
