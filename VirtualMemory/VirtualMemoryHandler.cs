@@ -41,6 +41,8 @@ namespace VirtualMemory
                 var pageTable = GetPageTable(triplet.segment);
 
                 physicalMemory[pageTable + triplet.page] = triplet.frame;
+
+                bitmap.SetBit(triplet.frame/512);
             }
         }
 
@@ -63,7 +65,7 @@ namespace VirtualMemory
 
             if (pageTable == -1 || pageTable == 0) return pageTable.ToString();
 
-            var page = GetPage(pageTable);
+            var page = GetPage(pageTable + virtualAddress.page);
 
             if (page == -1 || page == 0) return page.ToString();
 
@@ -96,7 +98,7 @@ namespace VirtualMemory
             // Create page table
             if (pageTable == 0)
             {
-                var frame = GetFreeFrame();
+                var frame = GetFreePageTable();
                 EmptyFrame(frame);
                 pageTable = frame * FrameSize;
                 SetSegmentToPageTable(virtualAddress.segment, pageTable);
@@ -112,7 +114,7 @@ namespace VirtualMemory
                 var frame = GetFreeFrame();
                 EmptyFrame(frame);
                 page = frame * FrameSize;
-                SetPageToPageTable(pageTable + virtualAddress.word, page);
+                SetPageToPageTable(pageTable + virtualAddress.page, page);
             }
 
             if (tlb != null) InsertEntry(virtualAddress);
@@ -144,7 +146,11 @@ namespace VirtualMemory
         {
             physicalMemory[segment] = pageTable;
 
-            bitmap.SetBit(pageTable/FrameSize);
+            if (pageTable > 0)
+            {
+                bitmap.SetBit(pageTable / FrameSize);
+                bitmap.SetBit((pageTable / FrameSize) + 1);
+            }
         }
 
         /// <summary>
@@ -169,8 +175,29 @@ namespace VirtualMemory
             return physicalMemory[pageTable];
         }
 
+
         /// <summary>
-        /// Using the bitmap, gets an open frame.
+        /// Using the bitmap, returns the initial bit of 2 consecutive free bits.
+        /// Returns null if both bits are not found.
+        /// </summary>
+        /// <returns></returns>
+        private int GetFreePageTable()
+        {
+            for (var i = 0; i < 1024; i++)
+            {
+                var bit = bitmap.GetBit(i);
+                if (bit == 0)
+                {
+                    if (bitmap.GetBit(i + 1) == 0) return i;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Using the bitmap, gets 1st open frame.
+        /// Returns null if open bit is not found.
         /// </summary>
         /// <returns></returns>
         private int GetFreeFrame()
@@ -182,6 +209,7 @@ namespace VirtualMemory
 
             return -1;
         }
+
 
         /// <summary>
         /// Empties the frame for new allocation

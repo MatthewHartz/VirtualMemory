@@ -27,8 +27,7 @@ namespace FileSystem
         public int GetBit(int index)
         {
             var group = index / 32;
-            var section = index % 8;
-            //return (int)(_map & (_bitmask << index));
+            var section = index % 32;
 
             return _map[group] & (_bitmask << section);
         }
@@ -42,7 +41,7 @@ namespace FileSystem
         {
             //_map |= (_bitmask << index);
             var group = index/32;
-            var section = index%8;
+            var section = index%32;
 
             _map[group] |= (_bitmask << section);
         }
