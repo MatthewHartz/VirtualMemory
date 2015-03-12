@@ -22,7 +22,7 @@ namespace VirtualMemory
             segment = (address & _sMask) >> 19;
             page = (address & _pMask) >> 9;
             word = address & _wMask;
-            sp = ((address & _sMask) >> 10) | page;
+            sp = address >> 9;
         }
     }
 }
