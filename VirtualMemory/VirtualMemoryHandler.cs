@@ -256,10 +256,11 @@ namespace VirtualMemory
             {
                 if (tlb[i].sp == va.sp)
                 {
-                    tlb
-                        .Select(x => x)
-                        .Where(y => y.priority > tlb[i].priority)
-                        .Select(z => { z.priority -= 1; return z; });
+                    foreach (var entry in tlb)
+                    {
+                        if (entry.priority > tlb[i].priority) entry.priority -= 1;
+                    }
+
                     tlb[i].priority = 3;
                     return tlb[i].f + va.word;
                 }
