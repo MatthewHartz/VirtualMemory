@@ -70,13 +70,13 @@ namespace ProcessAndResourceManager
                 switch (value)
                 {
                     case "0":
-                        sb.Append("err\n");
+                        sb.Append("err ");
                         break;
                     case "-1":
-                        sb.Append("pf\n");
+                        sb.Append("pf ");
                         break;
                     default:
-                        sb.Append(value + "\n");
+                        sb.Append(value + " ");
                         break;
                 }
             }
